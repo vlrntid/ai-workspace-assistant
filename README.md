@@ -12,7 +12,8 @@ of each type, and how much space they take up.
 ## Features
 
 - 🔍 **Scans** any project directory (recursively).
-- 🚫 **Ignores** `.git`, `.venv`, `node_modules`, `__pycache__`, and other common noise.
+- 🚫 **Ignores noise automatically** — `.git`, `.venv`, `node_modules`, `__pycache__`, and other common dirs, *plus* each project's own `.gitignore`.
+- 📄 **Honors `.gitignore`** — build output and generated files you already ignore in Git are skipped too (disable with `--no-gitignore`).
 - 📊 **Counts files by extension** and reports their total size.
 - 🧭 **Detects programming languages** from file extensions.
 - 📝 **Generates a Markdown report** summarizing the project.
@@ -74,6 +75,7 @@ aiwa --version
 | `-f`, `--format FMT` | Report format: `markdown` (default) or `json`. |
 | `-q`, `--quiet` | Suppress progress output. |
 | `--ignore DIR [DIR ...]` | Additional directory names to ignore. |
+| `--no-gitignore` | Do not honor the project's `.gitignore` / `.git/info/exclude`. |
 | `--no-default-ignores` | Disable the built-in ignore list. |
 | `--version` | Print the version and exit. |
 

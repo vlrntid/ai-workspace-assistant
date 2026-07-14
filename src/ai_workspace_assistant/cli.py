@@ -20,7 +20,7 @@ from ai_workspace_assistant.progress import NullProgress, Progress, TtyProgress
 from ai_workspace_assistant.reporters import REPORTERS, Reporter
 from ai_workspace_assistant.scanner import scan_project
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -61,6 +61,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         metavar="DIR",
         help="Additional directory names to ignore",
+    )
+    parser.add_argument(
+        "--no-gitignore",
+        action="store_true",
+        help="Do not honor the project's .gitignore / .git/info/exclude",
     )
     parser.add_argument(
         "--no-default-ignores",
@@ -110,7 +115,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     try:
-        scan = scan_project(root, ignores=ignores, progress=progress)
+        scan = scan_project(
+            root, ignores=ignores, progress=progress, use_gitignore=not args.no_gitignore
+        )
     except ScanError as exc:
         _print_error(str(exc))
         return 2

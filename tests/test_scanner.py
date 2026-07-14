@@ -57,3 +57,33 @@ def test_scan_reports_unreadable_files(
     result = scan_project(sample_project, ignores={".git", "node_modules"})
     assert result.total_files == 5  # main.py was skipped
     assert any("main.py" in warning for warning in result.warnings)
+
+
+def test_scan_honors_gitignore(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text("*.secret\nbuild/\n")
+    (tmp_path / "keep.py").write_text("x = 1\n")
+    (tmp_path / "passwords.secret").write_text("top secret\n")
+    build = tmp_path / "build"
+    build.mkdir()
+    (build / "out.o").write_text("compiled\n")
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.secret").write_text("also secret\n")
+
+    result = scan_project(tmp_path, ignores=set())
+    extensions = {entry.extension for entry in result.files}
+
+    assert ".secret" not in extensions
+    # keep.py survives, plus the .gitignore file itself (a real project file).
+    assert result.total_files == 2
+
+
+def test_scan_can_disable_gitignore(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text("*.secret\n")
+    (tmp_path / "a.secret").write_text("x\n")
+    (tmp_path / "b.py").write_text("y\n")
+
+    result = scan_project(tmp_path, ignores=set(), use_gitignore=False)
+    # With gitignore disabled, the project's own .secret file is scanned (the
+    # .gitignore file itself is also present and counted).
+    assert ".secret" in {entry.extension for entry in result.files}
