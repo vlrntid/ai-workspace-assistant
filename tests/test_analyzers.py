@@ -47,6 +47,34 @@ def test_language_analyzer_detects_and_groups() -> None:
     assert by_language["Other"] == 1
 
 
+def test_language_detection_uses_shebang(tmp_path: Path) -> None:
+    script = tmp_path / "run"
+    script.write_text("#!/usr/bin/env python\nprint('hi')\n")
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("run"), 20, "")])
+    assert LanguageAnalyzer().analyze(scan)[0].language == "Python"
+
+
+def test_language_detection_disambiguates_cpp_header(tmp_path: Path) -> None:
+    header = tmp_path / "widget.h"
+    header.write_text("class Widget { public: int x; }; namespace ns {}\n")
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("widget.h"), 40, ".h")])
+    assert LanguageAnalyzer().analyze(scan)[0].language == "C++"
+
+
+def test_language_detection_keeps_plain_c_header(tmp_path: Path) -> None:
+    header = tmp_path / "math.h"
+    header.write_text("int add(int a, int b);\n")
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("math.h"), 30, ".h")])
+    assert LanguageAnalyzer().analyze(scan)[0].language == "C"
+
+
+def test_language_detection_leaves_unknown_extension_as_other(tmp_path: Path) -> None:
+    mystery = tmp_path / "data.xyz"
+    mystery.write_text("no clues here\n")
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("data.xyz"), 14, ".xyz")])
+    assert LanguageAnalyzer().analyze(scan)[0].language == "Other"
+
+
 def test_todo_analyzer_counts_markers(tmp_path: Path) -> None:
     code_file = tmp_path / "code.py"
     code_file.write_text("x = 1  # TODO: refactor this\ny = 2  # FIXME: off-by-one\n")

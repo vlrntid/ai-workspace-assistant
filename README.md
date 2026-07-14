@@ -15,7 +15,7 @@ of each type, and how much space they take up.
 - 🚫 **Ignores noise automatically** — `.git`, `.venv`, `node_modules`, `__pycache__`, and other common dirs, *plus* each project's own `.gitignore`.
 - 📄 **Honors `.gitignore`** — build output and generated files you already ignore in Git are skipped too (disable with `--no-gitignore`).
 - 📊 **Counts files by extension** and reports their total size.
-- 🧭 **Detects programming languages** from file extensions.
+- 🧭 **Detects programming languages** from file extensions, refined with shebang and C/C++ sniffing.
 - 📝 **Generates a Markdown report** summarizing the project.
 - 📦 **JSON output** (`--format json`) for piping into other tools.
 - 🔎 **Detects TODO/FIXME markers** across text files.

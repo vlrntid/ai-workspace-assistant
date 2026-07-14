@@ -20,7 +20,7 @@ from ai_workspace_assistant.progress import NullProgress, Progress, TtyProgress
 from ai_workspace_assistant.reporters import REPORTERS, Reporter
 from ai_workspace_assistant.scanner import scan_project
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def build_parser() -> argparse.ArgumentParser:
