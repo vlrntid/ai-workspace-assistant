@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-workspace-assistant"
+version = "0.1.0"
+description = "A CLI that analyzes software projects and generates useful reports."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [{ name = "Ryn" }]
+keywords = ["cli", "analysis", "report", "workspace", "project"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+]
+dependencies = []
+
+[project.scripts]
+aiwa = "ai_workspace_assistant.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vlrntid/ai-workspace-assistant"
+Repository = "https://github.com/vlrntid/ai-workspace-assistant"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_workspace_assistant"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["src"]

@@ -1,0 +1,11 @@
+# Ruff configuration. Kept in its own file (rather than pyproject.toml) so lint/format
+# settings are easy to find and override independently of build metadata.
+line-length = 100
+target-version = "py313"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = []
+
+[lint.isort]
+known-first-party = ["ai_workspace_assistant"]
