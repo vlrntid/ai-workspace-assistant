@@ -16,6 +16,8 @@ of each type, and how much space they take up.
 - 📊 **Counts files by extension** and reports their total size.
 - 🧭 **Detects programming languages** from file extensions.
 - 📝 **Generates a Markdown report** summarizing the project.
+- 📦 **JSON output** (`--format json`) for piping into other tools.
+- 🔎 **Detects TODO/FIXME markers** across text files.
 - ⏳ **Shows scan progress** on terminals (auto-disabled when piped or with `--quiet`).
 - 🛡️ **Handles errors gracefully** — unreadable files become warnings, not crashes.
 - 🧩 **Extensible** — add new metrics or output formats via small, registered plugins.
@@ -69,7 +71,7 @@ aiwa --version
 | --- | --- |
 | `path` | Project directory to scan (default: current directory). |
 | `-o`, `--output FILE` | Write the report to `FILE` instead of stdout. |
-| `-f`, `--format FMT` | Report format (default: `markdown`). |
+| `-f`, `--format FMT` | Report format: `markdown` (default) or `json`. |
 | `-q`, `--quiet` | Suppress progress output. |
 | `--ignore DIR [DIR ...]` | Additional directory names to ignore. |
 | `--no-default-ignores` | Disable the built-in ignore list. |
@@ -151,60 +153,52 @@ Two extension points make adding features trivial.
 ### Add a new analyzer
 
 Create a class that satisfies the `Analyzer` protocol (a `name` and an `analyze`
-method) and register it:
+method) and register it. A complete reference implementation already ships in
+`analyzers/todos.py` (the TODO/FIXME detector) — read it as a template:
 
 ```python
-# src/ai_workspace_assistant/analyzers/todos.py
-from ai_workspace_assistant.config import TODO_ANALYZER_NAME  # add to config.py
+# src/ai_workspace_assistant/analyzers/license.py
+from ai_workspace_assistant.config import LICENSE_ANALYZER_NAME  # add to config.py
 from ai_workspace_assistant.models import ScanResult
 
-class TodoAnalyzer:
-    name = TODO_ANALYZER_NAME
+class LicenseAnalyzer:
+    name = LICENSE_ANALYZER_NAME
 
-    def analyze(self, scan: ScanResult) -> int:
-        return sum(
-            1
-            for entry in scan.files
-            if entry.extension == ".py"
-            and "TODO" in (scan.root / entry.path).read_text(encoding="utf-8")
-        )
+    def analyze(self, scan: ScanResult) -> str | None:
+        for entry in scan.files:
+            if entry.path.name.upper() == "LICENSE":
+                return (scan.root / entry.path).read_text(encoding="utf-8").splitlines()[0]
+        return None
 ```
 
 ```python
 # in analyzers/__init__.py
-from ai_workspace_assistant.analyzers.todos import TodoAnalyzer
+from ai_workspace_assistant.analyzers.license import LicenseAnalyzer
 
-ANALYZERS.append(TodoAnalyzer())
+ANALYZERS.append(LicenseAnalyzer())
 ```
 
 ### Add a new reporter
 
-Implement the `Reporter` protocol and register it; `--format` picks it up automatically:
+Implement the `Reporter` protocol and register it; `--format` picks it up automatically.
+A complete reference implementation ships in `reporters/json.py`:
 
 ```python
-# src/ai_workspace_assistant/reporters/json.py
-import json
+# src/ai_workspace_assistant/reporters/html.py
 from ai_workspace_assistant.models import ProjectReport
 
-class JsonReporter:
-    format = "json"
+class HtmlReporter:
+    format = "html"
 
     def render(self, report: ProjectReport) -> str:
-        return json.dumps(
-            {
-                "root": str(report.scan.root),
-                "total_files": report.scan.total_files,
-                "languages": [vars(l) for l in report.get_languages()],
-            },
-            indent=2,
-        )
+        return f"<h1>{report.scan.root.name}</h1>"
 ```
 
 ```python
 # in reporters/__init__.py
-from ai_workspace_assistant.reporters.json import JsonReporter
+from ai_workspace_assistant.reporters.html import HtmlReporter
 
-REPORTERS.append(JsonReporter())
+REPORTERS.append(HtmlReporter())
 ```
 
 ---

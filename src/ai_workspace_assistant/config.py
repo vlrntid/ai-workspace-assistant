@@ -95,3 +95,4 @@ EXTENSION_TO_LANGUAGE: dict[str, str] = {
 # than in the analyzer modules) to avoid an import cycle between models and analyzers.
 EXTENSION_ANALYZER_NAME = "extensions"
 LANGUAGE_ANALYZER_NAME = "languages"
+TODO_ANALYZER_NAME = "todos"

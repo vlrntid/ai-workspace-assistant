@@ -64,6 +64,16 @@ class LanguageStat:
 
 
 @dataclass
+class TodoSummary:
+    """Aggregated TODO/FIXME markers found across the scanned text files."""
+
+    todos: int
+    fixmes: int
+    total: int
+    by_file: list[tuple[str, int]]
+
+
+@dataclass
 class ProjectReport:
     """The final report: a scan plus the output of every registered analyzer."""
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,22 @@ def test_parser_defaults() -> None:
 def test_parser_lists_markdown_format() -> None:
     args = build_parser().parse_args(["--format", "markdown"])
     assert args.format == "markdown"
+
+
+def test_parser_accepts_json_format() -> None:
+    args = build_parser().parse_args(["--format", "json"])
+    assert args.format == "json"
+
+
+def test_main_json_output_is_valid(
+    sample_project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = main([str(sample_project), "--format", "json", "--quiet"])
+    assert code == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["summary"]["total_files"] == 6
+    assert any(lang["language"] == "Python" for lang in data["languages"])
+    assert data["todos"]["total"] >= 0
 
 
 def test_main_reports_project(sample_project: Path, capsys: pytest.CaptureFixture[str]) -> None:

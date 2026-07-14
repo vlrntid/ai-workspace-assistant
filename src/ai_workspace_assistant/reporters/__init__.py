@@ -8,10 +8,17 @@ output (JSON, HTML, ...), implement the `Reporter` protocol and add an instance 
 from __future__ import annotations
 
 from ai_workspace_assistant.reporters.base import Reporter
+from ai_workspace_assistant.reporters.json import JsonReporter
 from ai_workspace_assistant.reporters.markdown import MarkdownReporter
 
 REPORTERS: list[Reporter] = [
     MarkdownReporter(),
+    JsonReporter(),
 ]
 
-__all__ = ["REPORTERS", "MarkdownReporter", "Reporter"]
+__all__ = [
+    "REPORTERS",
+    "JsonReporter",
+    "MarkdownReporter",
+    "Reporter",
+]

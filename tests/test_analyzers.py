@@ -6,7 +6,8 @@ from pathlib import Path
 
 from ai_workspace_assistant.analyzers.extensions import ExtensionAnalyzer
 from ai_workspace_assistant.analyzers.languages import LanguageAnalyzer
-from ai_workspace_assistant.models import FileEntry, ScanResult
+from ai_workspace_assistant.analyzers.todos import TodoAnalyzer
+from ai_workspace_assistant.models import FileEntry, ScanResult, TodoSummary
 
 
 def _make_scan(entries: list[tuple[str, int, str]]) -> ScanResult:
@@ -44,3 +45,24 @@ def test_language_analyzer_detects_and_groups() -> None:
     assert by_language["Python"] == 2
     assert by_language["TypeScript"] == 1
     assert by_language["Other"] == 1
+
+
+def test_todo_analyzer_counts_markers(tmp_path: Path) -> None:
+    code_file = tmp_path / "code.py"
+    code_file.write_text("x = 1  # TODO: refactor this\ny = 2  # FIXME: off-by-one\n")
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("code.py"), 42, ".py")])
+    result = TodoAnalyzer().analyze(scan)
+
+    assert isinstance(result, TodoSummary)
+    assert result.todos == 1
+    assert result.fixmes == 1
+    assert result.total == 2
+    assert ("code.py", 2) in result.by_file
+
+
+def test_todo_analyzer_skips_binary_files(tmp_path: Path) -> None:
+    binary_file = tmp_path / "data.bin"
+    binary_file.write_bytes(b"\xff\xfe\x00TODO\x80")  # invalid UTF-8 -> undecodable
+    scan = ScanResult(root=tmp_path, files=[FileEntry(Path("data.bin"), 5, ".bin")])
+    result = TodoAnalyzer().analyze(scan)
+    assert result.total == 0

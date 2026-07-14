@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from ai_workspace_assistant.models import (
     ProjectReport,
     ScanResult,
 )
+from ai_workspace_assistant.reporters.json import JsonReporter
 from ai_workspace_assistant.reporters.markdown import MarkdownReporter, human_size
 
 
@@ -60,3 +62,12 @@ def test_human_size_formatting() -> None:
     assert human_size(512) == "512 B"
     assert human_size(1024) == "1.0 KB"
     assert human_size(1536) == "1.5 KB"
+
+
+def test_json_reporter_valid_structure() -> None:
+    data = json.loads(JsonReporter().render(_make_report()))
+    assert data["root"] == str(Path("/home/user/myproj"))
+    assert data["summary"]["total_files"] == 2
+    assert data["languages"][0]["language"] == "Python"
+    assert data["extensions"][0]["extension"] == ".py"
+    assert "todos" not in data  # no todo analyzer ran for this hand-built report

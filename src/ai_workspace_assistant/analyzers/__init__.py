@@ -10,10 +10,18 @@ from __future__ import annotations
 from ai_workspace_assistant.analyzers.base import Analyzer
 from ai_workspace_assistant.analyzers.extensions import ExtensionAnalyzer
 from ai_workspace_assistant.analyzers.languages import LanguageAnalyzer
+from ai_workspace_assistant.analyzers.todos import TodoAnalyzer
 
 ANALYZERS: list[Analyzer] = [
     ExtensionAnalyzer(),
     LanguageAnalyzer(),
+    TodoAnalyzer(),
 ]
 
-__all__ = ["ANALYZERS", "Analyzer", "ExtensionAnalyzer", "LanguageAnalyzer"]
+__all__ = [
+    "ANALYZERS",
+    "Analyzer",
+    "ExtensionAnalyzer",
+    "LanguageAnalyzer",
+    "TodoAnalyzer",
+]
